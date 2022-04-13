@@ -5,13 +5,18 @@
  */
 package mazebaby;
 
+//import java.awt.Desktop.Action;
+import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.event.*;
+import javax.swing.JComponent.*;
+import java.awt.event.*;
+
+import mazebaby.Keys.*;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Objects;
 
 
@@ -26,8 +31,9 @@ import java.util.Objects;
  * Date    :    23/11/2021
  */
 
-public class BabyMaze extends JFrame
-{
+public class BabyMaze extends JFrame {
+	
+//	Action moveEast, moveWest, moveNorth, moveSouth;
     //Public variables declaration
     // Icons from Resource folder
     public static Icon babyLight = new ImageIcon(Objects.requireNonNull(BabyMaze.class.getClassLoader().getResource("icons/BabyLight.JPG")));
@@ -96,6 +102,7 @@ public class BabyMaze extends JFrame
     private final JLabel speedSliderLbl = new JLabel();
 
     private static String defaultOrientation="Vertical";
+    private boolean sWatchStarted = false;
     // End of Variable declaration
 
 
@@ -104,10 +111,15 @@ public class BabyMaze extends JFrame
         initComponents();
     }
 
-    private void initComponents()
-    {
+    private void initComponents(){
+		Keys key = new Keys();
         initLabelsGrid(defaultOrientation);
-
+        
+		Keys.MoveEast moveEast = key.new MoveEast();
+		Keys.MoveWest moveWest = key.new MoveWest();
+		Keys.MoveSouth moveSouth = key.new MoveSouth();
+		Keys.MoveNorth moveNorth = key.new MoveNorth();
+		
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(825, 585));
         setResizable(false);
@@ -176,7 +188,7 @@ public class BabyMaze extends JFrame
 
         controlsPanel.setBackground(new Color(204, 204, 204));
 
-        compassLblImageHolder.setIcon(new ImageIcon(getClass().getResource("/icons/Compass_North.JPG")));
+        compassLblImageHolder.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Compass_North.JPG"))));
 
         GroupLayout compassHolderLayout = new GroupLayout(compassHolder);
         compassHolder.setLayout(compassHolderLayout);
@@ -191,6 +203,7 @@ public class BabyMaze extends JFrame
 
         moveRightJButton.setFont(new Font("Tahoma", 1, 12));
         moveRightJButton.setText(">");
+        moveRightJButton.setMnemonic(KeyEvent.VK_RIGHT);
         moveRightJButton.setPreferredSize(new Dimension(50, 40));
         moveRightJButton.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent evt) {
@@ -202,17 +215,34 @@ public class BabyMaze extends JFrame
             }
         });
 
+        moveRightJButton.addKeyListener(new KeyAdapter() {
+        	public void keyPressed(KeyEvent e) {
+        		if(e.getKeyCode()== KeyEvent.VK_DOWN)BabyMoveSouth();
+        		else if(e.getKeyCode()== KeyEvent.VK_RIGHT)BabyMoveEast();
+        		else if(e.getKeyCode()== KeyEvent.VK_LEFT)BabyMoveWest();
+        		else if(e.getKeyCode()== KeyEvent.VK_UP)BabyMoveNorth();
+        	  }
+        });
+
         moveDownJbutton.setFont(new Font("Tahoma", 1, 12));
         moveDownJbutton.setText("v");
         moveDownJbutton.setMinimumSize(new Dimension(42, 23));
         moveDownJbutton.setPreferredSize(new Dimension(52, 42));
+        moveDownJbutton.addKeyListener(new KeyAdapter() {
+        	public void keyPressed(KeyEvent e) {
+        		if(e.getKeyCode()== KeyEvent.VK_DOWN)BabyMoveSouth();
+        		else if(e.getKeyCode()== KeyEvent.VK_RIGHT)BabyMoveEast();
+        		else if(e.getKeyCode()== KeyEvent.VK_LEFT)BabyMoveWest();
+        		else if(e.getKeyCode()== KeyEvent.VK_UP)BabyMoveNorth();
+        	}
+        });
         moveDownJbutton.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent evt)
             {
                 BabyMoveSouth();
                 directionTextBox.setText(" S");
-                compassLblImageHolder.setIcon(new ImageIcon(getClass().getResource("/icons/Compass_South.JPG")));
+                compassLblImageHolder.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Compass_South.JPG"))));
                 currentSquareLocation.setText(getBabySquare());
                 if(defaultOrientation.equals("Vertical"))
                     printVerticalGridLabels(gridLabels);
@@ -224,6 +254,15 @@ public class BabyMaze extends JFrame
         moveLeftJButton.setFont(new Font("Tahoma", 1, 12));
         moveLeftJButton.setText("<");
         moveLeftJButton.setPreferredSize(new Dimension(50, 40));
+		moveLeftJButton.getInputMap().put(KeyStroke.getKeyStroke("D"), "pressed");
+		moveLeftJButton.addKeyListener(new KeyAdapter() {
+        	public void keyPressed(KeyEvent e) {
+        		if(e.getKeyCode()== KeyEvent.VK_DOWN)BabyMoveSouth();
+        		else if(e.getKeyCode()== KeyEvent.VK_RIGHT)BabyMoveEast();
+        		else if(e.getKeyCode()== KeyEvent.VK_LEFT)BabyMoveWest();
+        		else if(e.getKeyCode()== KeyEvent.VK_UP)BabyMoveNorth();        	   
+        	  }
+        });
         moveLeftJButton.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent evt)
@@ -238,17 +277,25 @@ public class BabyMaze extends JFrame
                     printHorizontalGridLabels(gridLabels);
             }
         });
-
         moveUpJbutton.setFont(new Font("Tahoma", 1, 12));
         moveUpJbutton.setText("^");
         moveUpJbutton.setPreferredSize(new Dimension(50, 40));
+        moveUpJbutton.addKeyListener(new KeyAdapter() {
+        	public void keyPressed(KeyEvent e) {
+        		if(e.getKeyCode()== KeyEvent.VK_DOWN)BabyMoveSouth();
+        		else if(e.getKeyCode()== KeyEvent.VK_RIGHT)BabyMoveEast();
+        		else if(e.getKeyCode()== KeyEvent.VK_LEFT)BabyMoveWest();
+        		else if(e.getKeyCode()== KeyEvent.VK_UP)BabyMoveNorth();
+        	   
+        	  }
+        });
         moveUpJbutton.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent evt)
             {
                 BabyMoveNorth();
                 directionTextBox.setText(" N");
-                compassLblImageHolder.setIcon(new ImageIcon(getClass().getResource("/icons/Compass_North.JPG")));
+                compassLblImageHolder.setIcon(new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/icons/Compass_North.JPG"))));
                 currentSquareLocation.setText(getBabySquare());
                 if(defaultOrientation.equals("Vertical"))
                     printVerticalGridLabels(gridLabels);
@@ -262,7 +309,7 @@ public class BabyMaze extends JFrame
         moveDown_RightJButton.setPreferredSize(new Dimension(50, 40));
 
         scrollCenterButton.setFont(new Font("Tahoma", 1, 12));
-        scrollCenterButton.setIcon(new ImageIcon(this.getClass().getResource("/Icons/BabyDark.JPG")));
+        scrollCenterButton.setIcon(new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/Icons/BabyDark.JPG"))));
         scrollCenterButton.setPreferredSize(new Dimension(54, 44));
 
         moveUp_LeftJButton.setFont(new Font("Tahoma", 1, 12));
@@ -454,7 +501,7 @@ public class BabyMaze extends JFrame
                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        actBtn.setIcon(new ImageIcon(getClass().getResource("/icons/Act.JPG")));
+        actBtn.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Act.JPG"))));
         actBtn.setText("Act");
         actBtn.addMouseListener(new MouseAdapter()
         {
@@ -464,9 +511,9 @@ public class BabyMaze extends JFrame
             }
         });
 
-        runGameBtn.setIcon(new ImageIcon(getClass().getResource("/icons/Run.JPG")));
+        runGameBtn.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Run.JPG"))));
         runGameBtn.setText("Run");
-        runGameBtn.setPressedIcon(new ImageIcon(getClass().getResource("/icons/Running.JPG")));
+        runGameBtn.setPressedIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Running.JPG"))));
         runGameBtn.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent e)
@@ -485,7 +532,35 @@ public class BabyMaze extends JFrame
                 flushGameJPanel();
             }
         });
-
+		
+//		Key Event Listeners/ Key bindings	
+//		Action babyTurnEast = new AbstractAction() {
+//		    private static final long serialVersionUID = 1L;
+//
+//			@Override
+//		    public void actionPerformed(ActionEvent e) {
+//				moveRightJButton.setText(">");
+//		        BabyMoveEast();
+//		    }
+//		};
+//		babyTurnEast.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("UP"));
+//		moveRightJButton.setAction(babyTurnEast);
+//		moveRightJButton.getActionMap().put("rightMove", babyTurnEast);
+//		moveRightJButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+//			.put(KeyStroke.getKeyStroke("LEFT"), "babyTurnEast");
+		
+//		moveRightJButton.
+		
+		
+		moveLeftJButton.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), "leftMove");
+		moveLeftJButton.getActionMap().put("leftMove", moveEast);
+		
+		moveUpJbutton.getInputMap().put(KeyStroke.getKeyStroke("UP"), "upMove");
+		moveUpJbutton.getActionMap().put("upMove", moveEast);
+		
+		moveDownJbutton.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "downMove");
+		moveDownJbutton.getActionMap().put("downMove", moveSouth);
+		
         speedSliderLbl.setFont(new Font("Tahoma", 1, 11));
         speedSliderLbl.setHorizontalAlignment(SwingConstants.CENTER);
         speedSliderLbl.setText("Speed:");
@@ -554,42 +629,45 @@ public class BabyMaze extends JFrame
     {
         final int delayWait=1000;
         final int[][] babyCell = {new int[2]};
-        stopwatch = new Timer(delayWait, new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
+        if(!sWatchStarted){
+            sWatchStarted = true;
+            stopwatch = new Timer(delayWait, new ActionListener()
             {
-                babyCell[0] = getBabyAddress();
-                runGameBtn.setIcon(new ImageIcon(getClass().getResource("/icons/Running.JPG")));
-                if (sec > 59)
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
                 {
-                    min += 1;
-                    sec = 0;
-                }
-                if (min > 59)
-                {
-                    hrs += 1;
-                    min = 0;
-                }
-                SecondsTxtField.setText(String.format("%02d", sec));
-                MinutesTxtField.setText(String.format("%02d", min));
-                hoursTextField.setText(String.format("%02d", hrs));
-                sec += 1;
+                    babyCell[0] = getBabyAddress();
+                    runGameBtn.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Running.JPG"))));
+                    if (sec > 59)
+                    {
+                        min += 1;
+                        sec = 0;
+                    }
+                    if (min > 59)
+                    {
+                        hrs += 1;
+                        min = 0;
+                    }
+                    SecondsTxtField.setText(String.format("%02d", sec));
+                    MinutesTxtField.setText(String.format("%02d", min));
+                    hoursTextField.setText(String.format("%02d", hrs));
+                    sec += 1;
 
-                // This code checks if the baby has reached its destination and stops the timer
-                if ((babyCell[0][1] >= 16-1) && (defaultOrientation.equals("Vertical")) || (babyCell[0][0] >= 13-1) && (defaultOrientation.equals("Horizontal")))
-                {
-                    sec=0;
-                    min=0;
-                    hrs=0;
+                    // This code checks if the baby has reached its destination and stops the timer
+                    if ((babyCell[0][1] >= 16-1) && (defaultOrientation.equals("Vertical")) || (babyCell[0][0] >= 13-1) && (defaultOrientation.equals("Horizontal")))
+                    {
+                        sec=0;
+                        min=0;
+                        hrs=0;
 
-                    runGameBtn.setIcon(new ImageIcon(getClass().getResource("/icons/Run.JPG")));
-                    ((Timer)actionEvent.getSource()).stop();
+                        runGameBtn.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/Run.JPG"))));
+                        ((Timer)actionEvent.getSource()).stop();
 
+                    }
                 }
-            }
-        });
-        stopwatch.start();
+            });
+            stopwatch.start();
+        }
     }
 
     // This method delays the baby auto movement simulation according to the set speed on speed JSlider
@@ -778,7 +856,7 @@ public class BabyMaze extends JFrame
             gridLabels[newAddress[0]][newAddress[1]].setIcon(babyLight);
         }
         directionTextBox.setText(" N");
-        compassLblImageHolder.setIcon(new ImageIcon(BabyMaze.class.getResource("/icons/Compass_North.JPG")));
+        compassLblImageHolder.setIcon(new ImageIcon(Objects.requireNonNull(BabyMaze.class.getResource("/icons/Compass_North.JPG"))));
         currentSquareLocation.setText(getBabySquare());
     }
 
@@ -837,72 +915,55 @@ public class BabyMaze extends JFrame
         int[] foundBlankOnPathAddress = new int[2];
         currentBabyAddress = getBabyAddress();
 
-        switch (defaultOrientation){
+        switch (defaultOrientation) {
             case "Vertical":
-                while(index<13)
-                {
+                while (index < 13) {
                     // Assigning new address on cell to the right
                     adjacentBabyAddress[0] = currentBabyAddress[0];
-                    adjacentBabyAddress[1] = currentBabyAddress[1]+1;
+                    adjacentBabyAddress[1] = currentBabyAddress[1] + 1;
 
                     // This code tests if a cell adjacent to the baby is a blank space
-                    if(blankHash == (gridLabels[index][adjacentBabyAddress[1]].getIcon().hashCode()))
-                    {
-                        foundBlankOnPathAddress[0]= index;
-                        foundBlankOnPathAddress[1]= adjacentBabyAddress[1];
+                    if (blankHash == (gridLabels[index][adjacentBabyAddress[1]].getIcon().hashCode())) {
+                        foundBlankOnPathAddress[0] = index;
+                        foundBlankOnPathAddress[1] = adjacentBabyAddress[1];
                         break;
                     }
                     index++;
                 }
-                if(currentBabyAddress[0]<(foundBlankOnPathAddress[0]))
-                {
+                if (currentBabyAddress[0] < (foundBlankOnPathAddress[0])) {
                     BabyMoveSouth();
-                }else if(currentBabyAddress[0]>foundBlankOnPathAddress[0])
-                {
+                } else if (currentBabyAddress[0] > foundBlankOnPathAddress[0]) {
                     BabyMoveNorth();
-                }else if(currentBabyAddress[0] == foundBlankOnPathAddress[0])
-                {
+                } else if (currentBabyAddress[0] == foundBlankOnPathAddress[0]) {
                     BabyMoveEast();
                 }
-                if(blankHash == (gridLabels[currentBabyAddress[0]][currentBabyAddress[1]+1].getIcon().hashCode()))
-                {
+                if (blankHash == (gridLabels[currentBabyAddress[0]][currentBabyAddress[1] + 1].getIcon().hashCode())) {
                     BabyMoveEast();
                 }
-            break;
-
             case "Horizontal":
-                while(index<16)
-                {
+                while (index < 16) {
                     // Assigning new address on cell to the cell below the baby
                     adjacentBabyAddress[0] = currentBabyAddress[0] + 1;
                     adjacentBabyAddress[1] = currentBabyAddress[1];
 
                     // This code tests if a cell adjacent to the baby is a blank space
-                    if(blankHash == (gridLabels[adjacentBabyAddress[0]][index].getIcon().hashCode()))
-                    {
-                        foundBlankOnPathAddress[0]= adjacentBabyAddress[0];
-                        foundBlankOnPathAddress[1]= index;
+                    if (blankHash == (gridLabels[adjacentBabyAddress[0]][index].getIcon().hashCode())) {
+                        foundBlankOnPathAddress[0] = adjacentBabyAddress[0];
+                        foundBlankOnPathAddress[1] = index;
                         break;
                     }
                     index++;
                 }
-                if(currentBabyAddress[1] < (foundBlankOnPathAddress[1]))
-                {
+                if (currentBabyAddress[1] < (foundBlankOnPathAddress[1])) {
                     BabyMoveEast();
-                }
-                else if(currentBabyAddress[1] == foundBlankOnPathAddress[1]-1)
-                {
+                } else if (currentBabyAddress[1] == foundBlankOnPathAddress[1] - 1) {
+                    BabyMoveWest();
+                } else if (currentBabyAddress[1] > foundBlankOnPathAddress[1]) {
                     BabyMoveWest();
                 }
-                else if(currentBabyAddress[1] > foundBlankOnPathAddress[1])
-                {
-                    BabyMoveWest();
-                }
-                if(blankHash == (gridLabels[currentBabyAddress[0]+1][currentBabyAddress[1]].getIcon().hashCode()))
-                {
+                if (blankHash == (gridLabels[currentBabyAddress[0] + 1][currentBabyAddress[1]].getIcon().hashCode())) {
                     BabyMoveSouth();
                 }
-            break;
         }
     }
 
@@ -929,4 +990,5 @@ public class BabyMaze extends JFrame
         // Create and display the form with the following lambda expression
         EventQueue.invokeLater(() -> new BabyMaze().setVisible(visibility));
     }
+
 }
